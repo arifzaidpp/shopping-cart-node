@@ -4,8 +4,11 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
+  productHelpers.getAllProducts().then((Products)=>{
+    console.log(Products);
+    res.render('admin/view-products', { Products, admin: true })
+  })
   
-  res.render('admin/view-products', { Products, admin: true })
 });
 router.get('/add-product', function (req, res) {
   res.render('admin/add-product')
@@ -15,7 +18,7 @@ router.post('/add-product', (req, res) => {
     let image = req.files.Image
     image.mv('./public/product-image/' + id + '.jpg', (err) => {
       if (!err) {
-        res.render("admin/add-product")
+        res.render("admin/view-products")
       } else {
         console.log(err);
       }

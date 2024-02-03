@@ -1,33 +1,41 @@
 var express = require('express');
+const productHelpers = require('../helpers/product-helpers');
+const userHelpers = require('../helpers/user-helpers');
 var router = express.Router();
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  var Products = [{
-    image: "https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1662418953/Croma%20Assets/Communication/Mobiles/Images/230106_nxtpnk.png?tr=w-640",
-    title: "IPHONE 1",
-    category: "Mobile",
-    description: "This is a good mobile"
-  },
-  {
-    image: "https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1662424567/Croma%20Assets/Communication/Mobiles/Images/229922_biq8sa.png?tr=w-640",
-    title: "IPHONE 1",
-    category: "Mobile",
-    description: "This is a good mobile"
-  },
-  {
-    image: "https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1664009521/Croma%20Assets/Communication/Mobiles/Images/243468_0_wevddw.png?tr=w-640",
-    title: "IPHONE 1",
-    category: "Mobile",
-    description: "This is a good mobile"
-  },
-  {
-    image: "https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1662703105/Croma%20Assets/Communication/Mobiles/Images/261963_oqrd6j.png?tr=w-640",
-    title: "IPHONE 1",
-    category: "Mobile",
-    description: "This is a good mobile"
-  }]
-  res.render('index', {Products, admin:false});
+  let user = req.session.user
+  productHelpers.getAllProducts().then((Products) => {
+    console.log(Products);
+    res.render('user/view-products', { Products, user, admin: false })
+  })
 });
+router.get('/login', function (req, res) {
+  res.render('user/login')
+});
+router.get('/signup', function (req, res) {
+  res.render('user/signup')
+});
+router.post('/signup', (req, res) => {
+  userHelpers.doSignup(req.body).then((response) => {
+    res.redirect('/login')
+  })
+})
+router.post('/login', (req, res) => {
+  userHelpers.doLogin(req.body).then((response) => {
+    if (response.status) {
+      req.session.loggedIn = true
+      req.session.user = response.user
+      res.redirect('/')
+    } else {
+      res.redirect('/login')
+    }
+  })
+})
+router.get('/logout',(req,res)=>{
+  req.session.destroy()
+  res.redirect('/')
+})
 
 module.exports = router;
