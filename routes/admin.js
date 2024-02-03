@@ -1,11 +1,11 @@
 var express = require('express');
 const productHelpers = require('../helpers/product-helpers');
 var router = express.Router();
+const fs = require('fs');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   productHelpers.getAllProducts().then((Products)=>{
-    console.log(Products);
     res.render('admin/view-products', { Products, admin: true })
   })
   
@@ -18,12 +18,19 @@ router.post('/add-product', (req, res) => {
     let image = req.files.Image
     image.mv('./public/product-image/' + id + '.jpg', (err) => {
       if (!err) {
-        res.render("admin/view-products")
+        res.redirect("/admin")
       } else {
         console.log(err);
       }
     })
 
+  })
+})
+router.get('/delete-product/:id',(req,res)=>{
+  let proId = req.params.id
+  productHelpers.deleteProduct(proId).then((response)=>{
+    fs.unlinkSync('./public/product-image/' + proId + '.jpg')
+    res.redirect('/admin')
   })
 })
 
