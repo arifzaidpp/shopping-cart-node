@@ -60,12 +60,11 @@ module.exports = {
         })
     },
     getCartProducts: (userId) => {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let usrId = new objectId(userId)
-            console.log(usrId);
             let cartItems = await db.get().collection(collection.CART_COLLECTIONS).aggregate([
                 {
-                    $match: { user: usrId}
+                    $match: { user: usrId }
                 },
                 {
                     $lookup: {
@@ -85,6 +84,17 @@ module.exports = {
                 }
             ]).toArray()
             resolve(cartItems[0].cartItems)
+        })
+    },
+    getCartCount: (userId) => {
+        return new Promise(async(resolve, reject) => {
+            let usrId = new objectId(userId)
+            let count = 0
+            let cart = await db.get().collection(collection.CART_COLLECTIONS).findOne({ user: usrId })
+            if (cart) {
+                count = cart.products.length
+            }
+            resolve(count)
         })
     }
 }
