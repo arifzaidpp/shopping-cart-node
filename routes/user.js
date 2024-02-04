@@ -58,13 +58,28 @@ router.get('/logout', (req, res) => {
 })
 router.get('/cart', verifyLogin, async (req, res) => {
   let user = req.session.user
+  let cartCount = null
+  if (req.session.user) {
+    cartCount = await userHelpers.getCartCount(req.session.user._id)
+  }
   let products = await userHelpers.getCartProducts(req.session.user._id)
-  res.render('user/cart', { products, user })
+  res.render('user/cart', { products, user, cartCount })
 })
 router.get('/add-to-cart/:id', (req, res) => {
-  console.log("api call");
   userHelpers.addToCart(req.params.id, req.session.user._id).then(() => {
     res.json({ status: true })
+  })
+})
+router.post('/change-product-quantity', (req, res, next) => {
+  console.log(req.body.count);
+  userHelpers.changeProductQuantity(req.body).then((response) => {
+    res.json(response)
+  })
+})
+router.get('/delete-cart-item/:id', (req, res) => {
+  let proId = req.params.id
+  userHelpers.deleteCartItem(proId, req.session.user._id).then((response) => {
+    res.redirect('/cart')
   })
 })
 

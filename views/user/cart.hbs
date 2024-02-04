@@ -5,21 +5,25 @@
                 <tr>
                     <th scope="col">Item</th>
                     <th scope="col">Title</th>
+                    <th scope="col">Price</th>
                     <th scope="col">Quantity</th>
                 </tr>
             </thead>
             <tbody>
                 {{#each products}}
                 <tr>
-                    {{#each this.product}}
-                    <td><img style="width: 70px;height:70px" src="./product-image/{{this._id}}.jpg" alt=""></td>
-                    <td>{{this.Name}}</td>
-                    {{/each}}
+                    <td><img style="width: 70px;height:70px" src="./product-image/{{this.product._id}}.jpg" alt=""></td>
+                    <td>{{this.product.Name}}</td>
+                    <td>Rs.{{this.product.Price}}</td>
                     <td>
-                        <button type="button" class="btn btn-secondary" class="cart-item-count mr-3">-</button> {{this.quantity}} <button type="button" class="btn btn-secondary" class="cart-item-count ml-3">+</button>
+                        <button type="button" class="btn btn-secondary me-3" id="minus-btn"
+                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', -1, '{{this.product.Name}}')">-</button>
+                        <span id="{{this.product._id}}">{{this.quantity}}</span> <button type="button"
+                            class="btn btn-secondary ms-3"
+                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', 1, '{{this.product.Name}}')">+</button>
                     </td>
                     <td>
-                        <a href="" class="btn btn-danger">Remove</a>
+                        <a href="/delete-cart-item/{{this.product._id}}" class="btn btn-danger">Remove</a>
                     </td>
                 </tr>
                 {{/each}}
