@@ -12,13 +12,14 @@ function addToCart(proId) {
     })
 }
 
-function changeQuantity(cartId, proId, count) {
+function changeQuantity(cartId, proId, count, userId) {
     let quantity = parseInt(document.getElementById(proId).innerHTML)
     let cartCount = $('#cart-count').html()
     count = parseInt(count)
     $.ajax({
         url: '/change-product-quantity',
         data: {
+            user: userId,
             cart: cartId,
             product: proId,
             count: count,
@@ -31,9 +32,27 @@ function changeQuantity(cartId, proId, count) {
                 location.reload()
             } else {
                 document.getElementById(proId).innerHTML = quantity + count
+                document.getElementById('total').innerHTML = response.total[0].total
+                document.getElementsByClassName('total').innerHTML = response.total
                 cartCount = parseInt(cartCount) + 1
                 $("#cart-count").html(cartCount)
             }
         }
     })
 }
+
+
+$("#checkout-form").submit((e)=>{
+    e.preventDefault()
+    $.ajax({
+        url: '/place-order',
+        method: 'post',
+        data:$('#checkout-form').serialize(),
+        success: (response)=>{
+        alert(response)
+        if (response.status) {
+            location.href='/order-success'
+        }
+        }
+    })
+})

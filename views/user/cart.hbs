@@ -7,6 +7,7 @@
                     <th scope="col">Title</th>
                     <th scope="col">Price</th>
                     <th scope="col">Quantity</th>
+                    <th scope="col">Remove</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,10 +18,10 @@
                     <td>Rs.{{this.product.Price}}</td>
                     <td>
                         <button type="button" class="btn btn-secondary me-3" id="minus-btn"
-                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', -1, '{{this.product.Name}}')">-</button>
+                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', -1,'{{../user._id}}')">-</button>
                         <span id="{{this.product._id}}">{{this.quantity}}</span> <button type="button"
                             class="btn btn-secondary ms-3"
-                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', 1, '{{this.product.Name}}')">+</button>
+                            onclick="changeQuantity('{{this._id}}', '{{this.product._id}}', 1,'{{../user._id}}')">+</button>
                     </td>
                     <td>
                         <a href="/delete-cart-item/{{this.product._id}}" class="btn btn-danger">Remove</a>
@@ -29,5 +30,10 @@
                 {{/each}}
             </tbody>
         </table>
+        <div class="float-right pr-5">
+            <h5 class="d-md-flex justify-content-end mt-4 me-5">Total: ${{#each total}} <span id="total" class="me-5 ms-1">{{this.total}}</span>{{/each}}</h5>
+            <a href="/place-order" class="btn btn-success mt-3" style="width: 100%;"> <b>Place Order</b> </a>
+        </div>
+
     </div>
 </section>
