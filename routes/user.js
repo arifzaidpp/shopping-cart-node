@@ -35,16 +35,16 @@ router.get('/signup', function (req, res) {
 });
 router.post('/signup', (req, res) => {
   userHelpers.doSignup(req.body).then((response) => {
-    req.session.loggedIn = true
     req.session.user = response
+    req.session.user.loggedIn = true
     res.redirect('/')
   })
 })
 router.post('/login', (req, res) => {
   userHelpers.doLogin(req.body).then((response) => {
     if (response.status) {
-      req.session.loggedIn = true
       req.session.user = response.user
+      req.session.user.loggedIn = true
       res.redirect('/')
     } else {
       req.session.loginErr = "Invalid Username or Password"
@@ -53,17 +53,21 @@ router.post('/login', (req, res) => {
   })
 })
 router.get('/logout', (req, res) => {
-  req.session.destroy()
+  req.session.user=null
   res.redirect('/')
 })
 router.get('/cart', verifyLogin, async (req, res) => {
   let user = req.session.user
   let cartCount = null
+  let total =0
   if (req.session.user) {
     cartCount = await userHelpers.getCartCount(req.session.user._id)
   }
+  if (products.length>0) {
+    total = await userHelpers.getTotalAmount(req.session.user._id)
+  }
   let products = await userHelpers.getCartProducts(req.session.user._id)
-  let total = await userHelpers.getTotalAmount(req.session.user._id)
+  
   res.render('user/cart', { products, user, cartCount, total })
 })
 router.get('/add-to-cart/:id', (req, res) => {
@@ -122,6 +126,15 @@ router.get('/view-order-products/:id', async (req, res) => {
 })
 router.post('/verify-payment',(req,res)=>{
   console.log(req.body);
+  userHelpers.verifyPayment(req.body).then(()=>{
+    userHelpers.chagePaymentStatus(req.body['order[receipt]']).then(()=>{
+      console.log("payment Successfull");
+      res.json({status:true})
+    })
+  }).catch((err)=>{
+    console.log(err+"errrrrrrr");
+    res.json({status:false,errMsg:'Payment failed'})
+  })
 })
 
 module.exports = router;

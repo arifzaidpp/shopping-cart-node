@@ -49,7 +49,6 @@ $("#checkout-form").submit((e) => {
         method: 'post',
         data: $('#checkout-form').serialize(),
         success: (response) => {
-            alert(response)
             if (response.codSuccess) {
                 location.href = '/order-success'
             } else {
@@ -60,7 +59,6 @@ $("#checkout-form").submit((e) => {
 })
 
 function razorpayPayment(order) {
-    console.log(order);
     var options = {
         "key": "rzp_test_Srn41j5aMftRqa", // Enter the Key ID generated from the Dashboard
         "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -92,13 +90,20 @@ function razorpayPayment(order) {
     rzp1.open();
 }
 
-function verifyPayment(payment,order) {
+function verifyPayment(payment, order) {
     $.ajax({
-        url:'/verify-payment',
-        data:{
+        url: '/verify-payment',
+        data: {
             payment,
             order
         },
-        method:'post'
+        method: 'post',
+        success: (response) => {
+            if (response.status) {
+                location.href = '/order-success'
+            } else {
+                alert("payment failed")
+            }
+        }
     })
 }
