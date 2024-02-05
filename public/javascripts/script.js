@@ -68,9 +68,6 @@ function razorpayPayment(order) {
         "image": "https://example.com/your_logo",
         "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
         "handler": function (response) {
-            alert(response.razorpay_payment_id);
-            alert(response.razorpay_order_id);
-            alert(response.razorpay_signature)
 
             verifyPayment(response, order)
         },
@@ -83,7 +80,7 @@ function razorpayPayment(order) {
             "address": "Razorpay Corporate Office"
         },
         "theme": {
-            "color": "#3399cc"
+            "color": "#33498h"
         }
     };
     var rzp1 = new Razorpay(options);

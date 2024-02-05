@@ -35,16 +35,16 @@ router.get('/signup', function (req, res) {
 });
 router.post('/signup', (req, res) => {
   userHelpers.doSignup(req.body).then((response) => {
+    req.session.loggedIn = true
     req.session.user = response
-    req.session.user.loggedIn = true
     res.redirect('/')
   })
 })
 router.post('/login', (req, res) => {
   userHelpers.doLogin(req.body).then((response) => {
     if (response.status) {
+      req.session.loggedIn = true
       req.session.user = response.user
-      req.session.user.loggedIn = true
       res.redirect('/')
     } else {
       req.session.loginErr = "Invalid Username or Password"
@@ -53,20 +53,20 @@ router.post('/login', (req, res) => {
   })
 })
 router.get('/logout', (req, res) => {
-  req.session.user=null
+  req.session.destroy()
   res.redirect('/')
 })
 router.get('/cart', verifyLogin, async (req, res) => {
   let user = req.session.user
   let cartCount = null
   let total =0
+  let products = await userHelpers.getCartProducts(req.session.user._id)
   if (req.session.user) {
     cartCount = await userHelpers.getCartCount(req.session.user._id)
   }
   if (products.length>0) {
     total = await userHelpers.getTotalAmount(req.session.user._id)
   }
-  let products = await userHelpers.getCartProducts(req.session.user._id)
   
   res.render('user/cart', { products, user, cartCount, total })
 })
