@@ -3,6 +3,11 @@ var collection = require('../config/collections')
 const bcrypt = require('bcrypt')
 const { pipeline } = require('stream')
 var objectId = require('mongodb').ObjectId
+const RazorPay = require('razorpay')
+var instance = new RazorPay({
+    key_id: 'rzp_test_Srn41j5aMftRqa',
+    key_secret: 'rl85slGCt4HWVtsoa7NIFRVX',
+})
 module.exports = {
     doSignup: (userData) => {
         return new Promise(async (resolve, reject) => {
@@ -106,7 +111,6 @@ module.exports = {
                     }
                 }
             ]).toArray()
-            console.log(cartItems);
             resolve(cartItems)
         })
     },
@@ -211,13 +215,11 @@ module.exports = {
                     }
                 }
             ]).toArray()
-            console.log(total);
             resolve(total)
         })
     },
     placeOrder: (order, products, total) => {
         return new Promise((resolve, reject) => {
-            console.log(order, products, total);
             let status = order['payment-method'] === 'COD' ? 'placed' : 'pending'
             let orderObj = {
                 deliveryDetails: {
@@ -235,7 +237,8 @@ module.exports = {
 
             db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj).then((response) => {
                 db.get().collection(collection.CART_COLLECTION).deleteOne({ user: new objectId(order.userId) })
-                resolve()
+                console.log(response);
+                resolve(response)
             })
         })
     },
@@ -247,14 +250,12 @@ module.exports = {
     },
     getUserOrders: (userId) => {
         return new Promise(async (resolve, reject) => {
-            console.log(userId._id);
             let orders = await db.get().collection(collection.ORDER_COLLECTION)
-                .find({ userId:new objectId(userId._id) }).toArray()
-            console.log(orders);
+                .find({ userId: new objectId(userId._id) }).toArray()
             resolve(orders)
         })
     },
-    getOrderProducts:(orderId)=>{
+    getOrderProducts: (orderId) => {
         return new Promise(async (resolve, reject) => {
             let orderItems = await db.get().collection(collection.ORDER_COLLECTION).aggregate([
                 {
@@ -283,8 +284,28 @@ module.exports = {
                     }
                 }
             ]).toArray()
-            console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'+orderItems[0].product.Name);
             resolve(orderItems)
+        })
+    },
+    generateRazorpay: (orderId, total) => {
+        console.log(total[0].total);
+        return new Promise((resolve, reject) => {
+            instance.orders.create({
+                amount: total[0].total,
+                currency: "INR",
+                receipt: orderId,
+                notes: {
+                    key1: "value3",
+                    key2: "value2"
+                }
+            }, function (err, order) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(order);
+                    resolve(order)
+                }
+            })
         })
     }
 }
